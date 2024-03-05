@@ -1,5 +1,6 @@
 package com.herovired.Auction.Management.System.models;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.herovired.Auction.Management.System.util.ValidCategory;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.*;
@@ -8,6 +9,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.List;
 import java.util.Set;
 
 
@@ -70,7 +72,10 @@ public class Auction {
     @OneToOne(cascade = CascadeType.ALL)
     private Images images;
 
-    @OneToMany(mappedBy = "auction")
+    @OneToMany(mappedBy = "auction" , cascade = CascadeType.ALL)
     private Set<UserAuctionRegistration> registrations;
+
+    @OneToMany(mappedBy = "auction", cascade = CascadeType.ALL)
+    private List<Transaction> transactions;
 
 }

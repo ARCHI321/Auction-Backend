@@ -8,6 +8,7 @@ import com.herovired.Auction.Management.System.models.*;
 import com.herovired.Auction.Management.System.repositories.AuctionRepository;
 import com.herovired.Auction.Management.System.repositories.ImageRepository;
 import com.herovired.Auction.Management.System.repositories.SlotRepository;
+import com.herovired.Auction.Management.System.repositories.UserAuctionRegistrationRepository;
 import com.herovired.Auction.Management.System.services.IAuctionService;
 import com.herovired.Auction.Management.System.util.Categories;
 import jakarta.validation.Valid;
@@ -37,11 +38,16 @@ public class AuctionController {
     @Autowired
     private AuctionRepository auctionRepository;
 
+
+
     @Autowired
     private SlotRepository slotRepository;
 
     @Autowired
     private ImageRepository imageRepository;
+
+    @Autowired
+    private UserAuctionRegistrationRepository userAuctionRegistrationRepository;
 
     @PostMapping(value = "/create", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<AuctionResponse> createAuction(
@@ -90,29 +96,6 @@ public class AuctionController {
     public ResponseEntity<AuctionDto> updateAuction(
             @PathVariable("auctionId") String auctionId,
             @ModelAttribute @Valid AuctionDto auctionDto) throws AuctionClosedForUpdateException {
-//        System.out.println("auctionDto "+auctionDto);
-//        System.out.println("auctionId "+auctionId);
-//        Auction auction = auctionRepository.findByAuctionId(auctionId);
-//        auction.setTitle(auctionDto.getTitle());
-//        auction.setDescription(auctionDto.getDescription());
-//        auction.setStartingPrice(auctionDto.getStartingPrice());
-//        auction.setCategory(auctionDto.getCategory());
-//        Images images = imageRepository.findByImageId(auction.getImages().getImageId());
-//        images.processFile(auctionDto.getFile());
-//        auction.setImages(images);
-//        auction.setAuctionType(auctionDto.getAuctionType());
-//        auction.setSellerId(auctionDto.getSellerId());
-//
-//        Slot slot =slotRepository.findBySlotId(auction.getSlot().getSlotId());
-//        slot.setDate(auctionDto.getDate());
-//        slot.setSlotNumber(auctionDto.getSlotNumber());
-//        auction.setSlot(slot);
-//
-//        var updatedAuction = auctionRepository.save(auction);
-
-
-
-
 
         var updatedAuction = auctionService.updateAuction(auctionDto, auctionId);
         System.out.println("updatedAuction "+updatedAuction);
@@ -124,9 +107,13 @@ public class AuctionController {
     @DeleteMapping("/delete/{auctionId}")
     public ResponseEntity<CustomResponse> deleteAuction(
             @PathVariable String auctionId, @RequestParam String userId) throws AuctionClosedForUpdateException {
-        System.out.println(auctionId + " " + userId);
+       // System.out.println(auctionId + " " + userId);
+
+
         if(checkAuctionByUser(auctionId).equals(userId)){
+            userAuctionRegistrationRepository.deleteByUsernameAndAuctionId(userId,auctionId);
             auctionService.deleteAuction(auctionId);
+
             return new ResponseEntity<>(
                     new CustomResponse("Auction deleted successfully", true), HttpStatus.OK);
         }
@@ -143,11 +130,11 @@ public class AuctionController {
         return userId;
     }
 
-//    @GetMapping("/all")
-//    public ResponseEntity<Page<AuctionSlotResponse>> getAllAuctions(@RequestParam int page) {
-//        Page<AuctionSlotResponse> allAuctions = auctionService.getAllAuction(page);
-//        return new ResponseEntity<>(allAuctions, HttpStatus.OK);
-//    }
+    @GetMapping("/all-auctions")
+    public ResponseEntity<Page<AuctionSlotResponse>> getAllAuctions(@RequestParam int page) {
+        Page<AuctionSlotResponse> allAuctions = auctionService.getAllAuction(page);
+        return new ResponseEntity<>(allAuctions, HttpStatus.OK);
+    }
     @GetMapping("/all")
     public ResponseEntity<Page<AuctionSlotResponse>> getAllAuctionsByCurrentDate(@RequestParam int page) {
 

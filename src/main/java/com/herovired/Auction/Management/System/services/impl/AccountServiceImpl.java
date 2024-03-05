@@ -106,9 +106,12 @@ public class AccountServiceImpl implements IAuctionService {
         if (auction.getAuctionStatus() == AuctionStatus.CLOSED) {
             throw new AuctionClosedForUpdateException("Auction is closed and cannot be updated");
         }
-        if (auctionDto.getStartingPrice() > 0) {
-            auction.setStartingPrice(auctionDto.getStartingPrice());
-        }
+
+        auction.setStartingPrice(auctionDto.getStartingPrice());
+        auction.setTitle(auctionDto.getTitle());
+        auction.setDescription((auctionDto.getDescription()));
+        auction.setCategory(auctionDto.getCategory());
+
         auction = auctionRepository.save(auction);
 
         return AuctionMapper.mapToAuctionDto(auction);
