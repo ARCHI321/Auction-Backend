@@ -23,7 +23,6 @@ public class Transaction {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    // other transaction fields
 
     @ManyToOne
     @JoinColumn(name = "username", referencedColumnName = "user_name")

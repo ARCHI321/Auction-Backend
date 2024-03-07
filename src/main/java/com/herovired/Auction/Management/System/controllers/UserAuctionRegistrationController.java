@@ -2,7 +2,9 @@ package com.herovired.Auction.Management.System.controllers;
 
 import com.herovired.Auction.Management.System.dto.AuctionSlotResponse;
 import com.herovired.Auction.Management.System.exception.CustomResponse;
+import com.herovired.Auction.Management.System.models.RegistrationHistory;
 import com.herovired.Auction.Management.System.models.UserAuctionRegistration;
+import com.herovired.Auction.Management.System.repositories.RegistrationHistoryRepository;
 import com.herovired.Auction.Management.System.repositories.UserAuctionRegistrationRepository;
 import com.herovired.Auction.Management.System.services.UserAuctionRegistrationService;
 import com.herovired.Auction.Management.System.services.impl.AccountServiceImpl;
@@ -29,6 +31,9 @@ public class UserAuctionRegistrationController {
     private final UserAuctionRegistrationService registrationService;
 
     @Autowired
+    private RegistrationHistoryRepository registrationHistoryRepository;
+
+    @Autowired
     private AccountServiceImpl accountService;
 
     @Autowired
@@ -49,18 +54,18 @@ public class UserAuctionRegistrationController {
     @GetMapping("/registration/{userId}")
     public ResponseEntity<?> getRegistrationByUserId(@PathVariable String userId , @RequestParam int flag,@RequestParam(defaultValue = "0") int page){
         if(flag == 0) {
-            var allRegistrations = userAuctionRegistrationRepository.findByUserUserId(userId);
+            var allRegistrations = registrationHistoryRepository.findByUserUserId(userId);
             List<String> allRegistrationsName = new ArrayList<>();
-            for (UserAuctionRegistration userAuctionRegistration : allRegistrations) {
-                allRegistrationsName.add(userAuctionRegistration.getAuction().getAuctionId());
+            for (RegistrationHistory registrationHistory : allRegistrations) {
+                allRegistrationsName.add(registrationHistory.getAuction().getAuctionId());
             }
             return new ResponseEntity<>(allRegistrationsName, HttpStatus.ACCEPTED);
         }
         if(flag == 1){
-            var allRegistrations = userAuctionRegistrationRepository.findByUserUserId(userId);
+            var allRegistrations = registrationHistoryRepository.findByUserUserId(userId);
             List<AuctionSlotResponse> allAuctions = new ArrayList<>();
-            for (UserAuctionRegistration userAuctionRegistration : allRegistrations) {
-                allAuctions.add(accountService.getAuctionResponseById(userAuctionRegistration.getAuction().getAuctionId()));
+            for (RegistrationHistory registrationHistory : allRegistrations) {
+                allAuctions.add(accountService.getAuctionResponseById(registrationHistory.getAuction().getAuctionId()));
             }
             Page<AuctionSlotResponse> pageAuctions = paginateList(allAuctions, page, 10);
             return new ResponseEntity<>(pageAuctions, HttpStatus.ACCEPTED);        }
@@ -82,10 +87,7 @@ public class UserAuctionRegistrationController {
         }
         return ResponseEntity.ok(registeredUsernames);
     }
-//
-//    // Add more endpoints as needed for CRUD operations
-//
-//    // Example: Endpoint to unregister a user from an auction
+
     @DeleteMapping("/unregister")
     public ResponseEntity<?> unregisterUserFromAuction(@RequestParam String userId, @RequestParam String auctionId) {
         userAuctionRegistrationRepository.deleteByUsernameAndAuctionId(userId, auctionId);

@@ -1,6 +1,8 @@
 package com.herovired.Auction.Management.System.services;
 
+import com.herovired.Auction.Management.System.models.RegistrationHistory;
 import com.herovired.Auction.Management.System.repositories.AuctionRepository;
+import com.herovired.Auction.Management.System.repositories.RegistrationHistoryRepository;
 import com.herovired.Auction.Management.System.repositories.UserAuctionRegistrationRepository;
 import com.herovired.Auction.Management.System.models.Auction;
 import com.herovired.Auction.Management.System.models.User;
@@ -22,6 +24,9 @@ public class UserAuctionRegistrationService {
     @Autowired
     private AuctionRepository auctionRepository;
 
+    @Autowired
+    private RegistrationHistoryRepository registrationHistoryRepository;
+
     private final UserAuctionRegistrationRepository registrationRepository;
 
     @Autowired
@@ -37,7 +42,12 @@ public class UserAuctionRegistrationService {
         UserAuctionRegistration registration = new UserAuctionRegistration();
         registration.setUser(user.get());
         registration.setAuction(auction);
-        registrationRepository.save(registration);
+        var userAuctionRegistration = registrationRepository.save(registration);
+
+        RegistrationHistory registrationHistory = new RegistrationHistory();
+        registrationHistory.setAuction(userAuctionRegistration.getAuction());
+        registrationHistory.setUser(userAuctionRegistration.getUser());
+        registrationHistoryRepository.save(registrationHistory);
     }
 
     public void getRegistrationByUserId(String auctionId){

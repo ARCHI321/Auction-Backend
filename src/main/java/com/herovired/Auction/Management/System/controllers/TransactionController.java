@@ -35,7 +35,7 @@ public class TransactionController {
     public ResponseEntity<?> getAllTransactionsByUserId(@RequestParam String userName) {
         System.out.println(userName);
 
-        System.out.println(transactionRepository.findAll());
+//        System.out.println(transactionRepository.findAll());
         var allTransactions = transactionService.getAllTransactionsByUserId(userName);
         System.out.println(allTransactions);
         return new ResponseEntity<>(allTransactions , HttpStatus.ACCEPTED);

@@ -22,8 +22,8 @@ public class TransactionService {
         return transactionRepository.findAll();
     }
 
-    public String getAllTransactionsByUserId(String userId) {
-        return transactionRepository.findByUser_UserName(userId);
+    public List<Transaction> getAllTransactionsByUserId(String userId) {
+        return transactionRepository.findByUserUserId(userId);
     }
 
     // Other methods as needed

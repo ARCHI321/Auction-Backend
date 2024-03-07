@@ -1,6 +1,5 @@
 package com.herovired.Auction.Management.System.models;
 
-
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -13,7 +12,7 @@ import lombok.NoArgsConstructor;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class UserAuctionRegistration {
+public class RegistrationHistory {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
