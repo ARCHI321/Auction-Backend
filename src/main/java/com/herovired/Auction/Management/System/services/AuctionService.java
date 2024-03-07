@@ -122,6 +122,17 @@ public class AuctionService {
                 registeredNames = names;
                 announcedFlag = 1;
 
+                scheduler.scheduleAtFixedRate(() -> {
+                    //WebSocketController1.sendBroadcastMessage("Auction is still active: " + auction.getAuctionId() + " registered by " + allUserRegisteredForParticularAuction);
+                    WebSocketController1.sendBroadcastMessage("Auction " +activeAuction.getTitle() + " is still active @@@@: " + activeAuction.getAuctionId() + "##### registered by " + registeredNames + "actual: !!!![" + registeredUserNames  + "]!!!!");
+
+                }, 0, 1, TimeUnit.MINUTES);
+
+                // Schedule a task to stop sending messages after 5 minutes
+                scheduler.schedule(() -> {
+                    scheduler.shutdown();
+                }, 5, TimeUnit.MINUTES);
+
 
             }
 
@@ -129,16 +140,7 @@ public class AuctionService {
 
         });
 
-        scheduler.scheduleAtFixedRate(() -> {
-            //WebSocketController1.sendBroadcastMessage("Auction is still active: " + auction.getAuctionId() + " registered by " + allUserRegisteredForParticularAuction);
-            WebSocketController1.sendBroadcastMessage("Auction " +activeAuction.getTitle() + " is still active @@@@: " + activeAuction.getAuctionId() + "##### registered by " + registeredNames + "actual: !!!![" + registeredUserNames  + "]!!!!");
 
-        }, 0, 1, TimeUnit.MINUTES);
-
-        // Schedule a task to stop sending messages after 5 minutes
-        scheduler.schedule(() -> {
-            scheduler.shutdown();
-        }, 5, TimeUnit.MINUTES);
 
         // Update status to "CLOSED" for closed auctions
         allAuctions.forEach(auction -> {

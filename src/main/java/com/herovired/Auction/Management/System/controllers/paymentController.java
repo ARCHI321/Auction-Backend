@@ -7,6 +7,7 @@ import com.herovired.Auction.Management.System.models.Transaction;
 import com.herovired.Auction.Management.System.models.TransactionDetails;
 import com.herovired.Auction.Management.System.repositories.AuctionRepository;
 import com.herovired.Auction.Management.System.repositories.TransactionRepository;
+import com.herovired.Auction.Management.System.repositories.UserAuctionRegistrationRepository;
 import com.herovired.Auction.Management.System.repositories.UserRepository;
 import com.herovired.Auction.Management.System.services.PaymentService;
 import com.herovired.Auction.Management.System.util.TransactionStatus;
@@ -37,9 +38,12 @@ public class paymentController {
     private TransactionRepository transactionRepository;
 
     @Autowired
+    private UserAuctionRegistrationRepository userAuctionRegistrationRepository;
+
+    @Autowired
     private AuctionRepository auctionRepository;
 
-    @GetMapping("createTransaction/{amount}")
+    @GetMapping("/createTransaction/{amount}")
     public TransactionDetails createTransaction(@PathVariable(name = "amount") Long amount , @RequestParam boolean isRegistry , @RequestParam String userId , @RequestParam String auctionId) throws RazorpayException {
 
 
@@ -64,6 +68,22 @@ public class paymentController {
 
         return transactionDetails;
 
+    }
+    @PostMapping("/set-status")
+    public ResponseEntity<?> setStatusOfPayment(@RequestParam String userId,@RequestParam String auctionId ,@RequestParam String transactionId,@RequestParam boolean isFailure){
+        System.out.println(transactionId);
+
+        if(isFailure){
+            transactionRepository.updateStatusByTransactionId(transactionId,TransactionStatus.FAILURE);
+            userAuctionRegistrationRepository.deleteByUsernameAndAuctionId(userId , auctionId);
+        }
+        else {
+            transactionRepository.updateStatusByTransactionId(transactionId,TransactionStatus.SUCCESS);
+        }
+
+
+        return  new ResponseEntity<>(
+                new CustomResponse("Status set" , true), HttpStatus.ACCEPTED);
     }
 
 }

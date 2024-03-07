@@ -34,7 +34,7 @@ public class Transaction {
 
     private String transactionId;
 
-    private Integer amount; // Example field for transaction amount
+    private Integer amount;
     private LocalDateTime transactionDateTime;
 
     // Fields for transaction status and type

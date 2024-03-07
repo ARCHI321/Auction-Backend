@@ -139,6 +139,14 @@ public class User {
         return registrations;
     }
 
+    public List<Transaction> getTransactions() {
+        return transactions;
+    }
+
+    public void setTransactions(List<Transaction> transactions) {
+        this.transactions = transactions;
+    }
+
     public void setRegistrations(Set<UserAuctionRegistration> registrations) {
         this.registrations = registrations;
     }

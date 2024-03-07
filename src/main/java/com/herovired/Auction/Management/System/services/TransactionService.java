@@ -22,7 +22,7 @@ public class TransactionService {
         return transactionRepository.findAll();
     }
 
-    public List<Transaction> getAllTransactionsByUserId(String userId) {
+    public String getAllTransactionsByUserId(String userId) {
         return transactionRepository.findByUser_UserName(userId);
     }
 
