@@ -53,8 +53,19 @@ public class BidController {
         var bid = bidRepository.findMaxBidEntries();
         var auction = auctionRepository.findByAuctionId(auctionId);
         auction.setWinnerId(bid.getUserId());
+        auction.setCurrentPrice(bid.getBidAmount());
+        auctionRepository.save(auction);
         return new ResponseEntity<>(
-                new CustomResponse(bid.getUserId(), true), HttpStatus.OK);
+                new CustomResponse(bid.getUserId() + "&" + bid.getBidAmount(), true), HttpStatus.OK);
+    }
+
+    @PutMapping("/set-winner")
+    public ResponseEntity<?> setWinner(@RequestParam String auctionId , @RequestParam String userId){
+        var auction = auctionRepository.findByAuctionId(auctionId);
+        auction.setWinnerId(userId);
+        auctionRepository.save(auction);
+        return new ResponseEntity<>(
+                new CustomResponse(userId , true), HttpStatus.OK);
     }
 
     @GetMapping("/truncate")

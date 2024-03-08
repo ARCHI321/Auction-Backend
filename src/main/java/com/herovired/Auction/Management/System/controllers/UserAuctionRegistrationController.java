@@ -54,10 +54,10 @@ public class UserAuctionRegistrationController {
     @GetMapping("/registration/{userId}")
     public ResponseEntity<?> getRegistrationByUserId(@PathVariable String userId , @RequestParam int flag,@RequestParam(defaultValue = "0") int page){
         if(flag == 0) {
-            var allRegistrations = registrationHistoryRepository.findByUserUserId(userId);
+            var allRegistrations = userAuctionRegistrationRepository.findByUserUserId(userId);
             List<String> allRegistrationsName = new ArrayList<>();
-            for (RegistrationHistory registrationHistory : allRegistrations) {
-                allRegistrationsName.add(registrationHistory.getAuction().getAuctionId());
+            for (UserAuctionRegistration userAuctionRegistration : allRegistrations) {
+                allRegistrationsName.add(userAuctionRegistration.getAuction().getAuctionId());
             }
             return new ResponseEntity<>(allRegistrationsName, HttpStatus.ACCEPTED);
         }
@@ -89,10 +89,19 @@ public class UserAuctionRegistrationController {
     }
 
     @DeleteMapping("/unregister")
-    public ResponseEntity<?> unregisterUserFromAuction(@RequestParam String userId, @RequestParam String auctionId) {
-        userAuctionRegistrationRepository.deleteByUsernameAndAuctionId(userId, auctionId);
-        return new ResponseEntity<>(
-                new CustomResponse("UnRegistered User successfully", true), HttpStatus.OK);
+    public ResponseEntity<?> unregisterUserFromAuction(@RequestParam String userId, @RequestParam String auctionId , @RequestParam  int flag) {
+
+        if(flag == 1) {
+            userAuctionRegistrationRepository.deleteByUsernameAndAuctionId(userId, auctionId);
+            registrationHistoryRepository.deleteByUsernameAndAuctionId(userId, auctionId);
+            return new ResponseEntity<>(
+                    new CustomResponse("UnRegistered User successfully", true), HttpStatus.OK);
+        }
+        else{
+            userAuctionRegistrationRepository.deleteByUsernameAndAuctionId(userId, auctionId);
+            return new ResponseEntity<>(
+                    new CustomResponse("UnRegistered User successfully", true), HttpStatus.OK);
+        }
     }
 }
 
