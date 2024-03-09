@@ -3,6 +3,7 @@ package com.herovired.Auction.Management.System.services;
 import com.herovired.Auction.Management.System.dto.AuctionDto;
 import com.herovired.Auction.Management.System.dto.AuctionResponse;
 import com.herovired.Auction.Management.System.dto.AuctionSlotResponse;
+import com.herovired.Auction.Management.System.dto.FrontPageDto;
 import com.herovired.Auction.Management.System.exception.InvalidSlotNumberException;
 import com.herovired.Auction.Management.System.exception.AuctionClosedForUpdateException;
 
@@ -36,5 +37,5 @@ public interface IAuctionService {
 
     public AuctionSlotResponse getAuctionResponseById(String auctionId);
 
-    public List<Auction> getTop5UpcomingAuctions();
+    public List<FrontPageDto> getTop5UpcomingAuctions();
 }

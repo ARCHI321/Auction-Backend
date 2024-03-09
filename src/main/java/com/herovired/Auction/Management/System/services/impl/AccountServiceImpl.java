@@ -3,6 +3,7 @@ package com.herovired.Auction.Management.System.services.impl;
 import com.herovired.Auction.Management.System.dto.AuctionDto;
 import com.herovired.Auction.Management.System.dto.AuctionResponse;
 import com.herovired.Auction.Management.System.dto.AuctionSlotResponse;
+import com.herovired.Auction.Management.System.dto.FrontPageDto;
 import com.herovired.Auction.Management.System.exception.AuctionClosedForUpdateException;
 import com.herovired.Auction.Management.System.exception.AuctionInFutureException;
 import com.herovired.Auction.Management.System.exception.AuctionNotFoundException;
@@ -15,6 +16,10 @@ import com.herovired.Auction.Management.System.services.IAuctionService;
 import com.herovired.Auction.Management.System.util.AlphaNumericIdGenerator;
 import com.herovired.Auction.Management.System.util.ImageUtils;
 import com.herovired.Auction.Management.System.util.TimeGetter;
+
+import java.time.LocalTime;
+import java.util.Comparator;
+
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.data.domain.Page;
@@ -25,10 +30,10 @@ import java.io.IOException;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 
-import java.util.Date;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
+
+import static java.util.stream.Collectors.toList;
 
 
 @Service
@@ -51,7 +56,6 @@ public class AccountServiceImpl implements IAuctionService {
         if (existingSlot != null && existingSlot.getSlotStatus() != SlotStatus.AVAILABLE) {
             throw new SlotBookingException("Slot is not available");
         }
-
 
 
         String generatedAuctionId = generateUniqueAuctionId();
@@ -99,7 +103,6 @@ public class AccountServiceImpl implements IAuctionService {
     }
 
 
-
     @Override
     public AuctionDto updateAuction(AuctionDto auctionDto, String auctionId) throws AuctionClosedForUpdateException {
         Auction auction = auctionRepository.findById(auctionId)
@@ -140,6 +143,7 @@ public class AccountServiceImpl implements IAuctionService {
                 .map(AuctionMapper::mapToAuctionResponse)
                 .orElseThrow(() -> new AuctionNotFoundException("Auction", "ID", auctionId));
     }
+
     @Override
     public AuctionSlotResponse getAuctionResponseById(String auctionId) {
         return auctionRepository.findById(auctionId)
@@ -183,8 +187,7 @@ public class AccountServiceImpl implements IAuctionService {
         return auctionRepository.findByWinnerId(winnerId)
                 .stream()
                 .map(AuctionMapper::mapToAuctionResponse)
-                .collect(Collectors
-                        .toList());
+                .collect(toList());
     }
 
     @Override
@@ -193,8 +196,39 @@ public class AccountServiceImpl implements IAuctionService {
         return ImageUtils.decompressImage(auction.get().getImages().getImageData());
     }
 
-    public List<Auction> getTop5UpcomingAuctions() {
-        LocalDate currentDate = LocalDate.now();
-        return auctionRepository.findTop5UpcomingAuctions(AuctionStatus.UPCOMING,currentDate);
+//    public List<Auction> getTop5UpcomingAuctions() {
+//        LocalDate currentDate = LocalDate.now();
+//        return auctionRepository.findTop5UpcomingAuctions(AuctionStatus.UPCOMING,currentDate);
+//    }
+
+    public List<FrontPageDto> getTop5UpcomingAuctions() {
+        LocalDate today = LocalDate.now();
+        LocalTime now = LocalTime.now();
+        List<Auction> allAuctions = auctionRepository.findAll();
+        String path = "/image/"; // Assuming this is the base path for image URLs
+
+        // Filter auctions based on status (e.g., Open) and future start date/time
+        List<FrontPageDto> upcomingAuctions = allAuctions.stream()
+                .filter(auction -> auction.getAuctionStatus() == AuctionStatus.UPCOMING)
+                .sorted(Comparator.comparing(auction -> LocalDateTime.of(auction.getSlot().getDate(),
+                        auction.getSlot().getStartTime())))
+                .limit(5)
+                .map(auction -> {
+                    String imageUrl = path + auction.getAuctionId(); // Constructing image URL
+                    return FrontPageDto.builder()
+                            .imageUrl(imageUrl) // Adding image URL to DTO
+                            .title(auction.getTitle())
+                            .description(auction.getDescription())
+                            .startingPrice(auction.getStartingPrice())
+                            .startTime(auction.getSlot().getStartTime())
+                            .build();
+                })
+                .toList();
+
+        return upcomingAuctions;
     }
+
+
+
+
 }

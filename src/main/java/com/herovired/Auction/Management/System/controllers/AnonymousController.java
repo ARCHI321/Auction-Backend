@@ -1,5 +1,6 @@
 package com.herovired.Auction.Management.System.controllers;
 
+import com.herovired.Auction.Management.System.dto.FrontPageDto;
 import com.herovired.Auction.Management.System.models.Auction;
 import com.herovired.Auction.Management.System.services.IAuctionService;
 import lombok.AllArgsConstructor;
@@ -21,8 +22,8 @@ public class AnonymousController {
 
 
     @GetMapping("/upcoming-auctions")
-    public ResponseEntity<List<Auction>> getTop5UpcomingAuctions(){
-        List<Auction> upcomingAuctions = auctionService.getTop5UpcomingAuctions();
+    public ResponseEntity<List<FrontPageDto>> getTop5UpcomingAuctions(){
+        List<FrontPageDto> upcomingAuctions = auctionService.getTop5UpcomingAuctions();
         return new ResponseEntity<>(upcomingAuctions, HttpStatus.OK);
     }
 
