@@ -6,6 +6,7 @@ import com.herovired.Auction.Management.System.dto.AuctionSlotResponse;
 import com.herovired.Auction.Management.System.exception.InvalidSlotNumberException;
 import com.herovired.Auction.Management.System.exception.AuctionClosedForUpdateException;
 
+import com.herovired.Auction.Management.System.models.Auction;
 import org.springframework.data.domain.Page;
 
 import java.util.List;
@@ -34,4 +35,6 @@ public interface IAuctionService {
     byte[] downloadImage(String fileName);
 
     public AuctionSlotResponse getAuctionResponseById(String auctionId);
+
+    public List<Auction> getTop5UpcomingAuctions();
 }

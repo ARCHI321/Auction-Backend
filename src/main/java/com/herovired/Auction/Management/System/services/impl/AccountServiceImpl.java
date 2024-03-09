@@ -25,6 +25,7 @@ import java.io.IOException;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 
+import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -190,5 +191,10 @@ public class AccountServiceImpl implements IAuctionService {
     public byte[] downloadImage(String auctionId) {
         Optional<Auction> auction = auctionRepository.findById(auctionId);
         return ImageUtils.decompressImage(auction.get().getImages().getImageData());
+    }
+
+    public List<Auction> getTop5UpcomingAuctions() {
+        LocalDate currentDate = LocalDate.now();
+        return auctionRepository.findTop5UpcomingAuctions(AuctionStatus.UPCOMING,currentDate);
     }
 }
