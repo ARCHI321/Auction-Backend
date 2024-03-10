@@ -4,6 +4,7 @@ import com.herovired.Auction.Management.System.dto.AuctionDto;
 import com.herovired.Auction.Management.System.dto.AuctionResponse;
 import com.herovired.Auction.Management.System.dto.AuctionSlotResponse;
 import com.herovired.Auction.Management.System.dto.FrontPageDto;
+import com.herovired.Auction.Management.System.exception.CustomResponse;
 import com.herovired.Auction.Management.System.exception.InvalidSlotNumberException;
 import com.herovired.Auction.Management.System.exception.AuctionClosedForUpdateException;
 
@@ -38,4 +39,6 @@ public interface IAuctionService {
     public AuctionSlotResponse getAuctionResponseById(String auctionId);
 
     public List<FrontPageDto> getTop5UpcomingAuctions();
+
+    public CustomResponse checkWinnerAndPaymentStatus(String auctionId);
 }

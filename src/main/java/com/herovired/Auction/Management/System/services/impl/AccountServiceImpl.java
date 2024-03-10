@@ -4,23 +4,20 @@ import com.herovired.Auction.Management.System.dto.AuctionDto;
 import com.herovired.Auction.Management.System.dto.AuctionResponse;
 import com.herovired.Auction.Management.System.dto.AuctionSlotResponse;
 import com.herovired.Auction.Management.System.dto.FrontPageDto;
-import com.herovired.Auction.Management.System.exception.AuctionClosedForUpdateException;
-import com.herovired.Auction.Management.System.exception.AuctionInFutureException;
-import com.herovired.Auction.Management.System.exception.AuctionNotFoundException;
-import com.herovired.Auction.Management.System.exception.SlotBookingException;
+import com.herovired.Auction.Management.System.exception.*;
 import com.herovired.Auction.Management.System.mapper.AuctionMapper;
 import com.herovired.Auction.Management.System.models.*;
 import com.herovired.Auction.Management.System.repositories.AuctionRepository;
 import com.herovired.Auction.Management.System.repositories.SlotRepository;
+import com.herovired.Auction.Management.System.repositories.TransactionRepository;
 import com.herovired.Auction.Management.System.services.IAuctionService;
-import com.herovired.Auction.Management.System.util.AlphaNumericIdGenerator;
-import com.herovired.Auction.Management.System.util.ImageUtils;
-import com.herovired.Auction.Management.System.util.TimeGetter;
+import com.herovired.Auction.Management.System.util.*;
 
 import java.time.LocalTime;
 import java.util.Comparator;
 
 import lombok.AllArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -42,6 +39,9 @@ public class AccountServiceImpl implements IAuctionService {
 
     private AuctionRepository auctionRepository;
     private final SlotRepository slotRepository;
+
+    @Autowired
+    private TransactionRepository transactionRepository;
 
     @Override
     public AuctionResponse createAuction(AuctionDto auctionDto) throws IOException {
@@ -205,7 +205,7 @@ public class AccountServiceImpl implements IAuctionService {
         LocalDate today = LocalDate.now();
         LocalTime now = LocalTime.now();
         List<Auction> allAuctions = auctionRepository.findAll();
-        String path = "/image/"; // Assuming this is the base path for image URLs
+
 
         // Filter auctions based on status (e.g., Open) and future start date/time
         List<FrontPageDto> upcomingAuctions = allAuctions.stream()
@@ -214,9 +214,7 @@ public class AccountServiceImpl implements IAuctionService {
                         auction.getSlot().getStartTime())))
                 .limit(5)
                 .map(auction -> {
-                    String imageUrl = path + auction.getAuctionId(); // Constructing image URL
                     return FrontPageDto.builder()
-                            .imageUrl(imageUrl) // Adding image URL to DTO
                             .title(auction.getTitle())
                             .description(auction.getDescription())
                             .startingPrice(auction.getStartingPrice())
@@ -228,7 +226,48 @@ public class AccountServiceImpl implements IAuctionService {
         return upcomingAuctions;
     }
 
+    public CustomResponse checkWinnerAndPaymentStatus(String auctionId) {
+        // Find the auction by auctionId
+        Optional<Auction> optionalAuction = auctionRepository.findById(auctionId);
+        if (optionalAuction.isPresent()) {
+            Auction auction = optionalAuction.get();
+
+            // Check if there is a winner
+            String winnerId = auction.getWinnerId();
+            if (winnerId != null && !winnerId.isEmpty()) {
+
+                // Find the winner's transaction for the specific auction
+                Optional<Transaction> optionalTransaction = transactionRepository.findByUser_UserNameAndAuction_AuctionIdAndType(
+                        winnerId, auctionId, TransactionType.AUCTIONPAYMENT);
+
+                if (optionalTransaction.isPresent()) {
+                    Transaction transaction = optionalTransaction.get();
+
+                    // Check the payment status
+                    if (transaction.getStatus() == TransactionStatus.SUCCESS) {
+                        System.out.println("Winner: " + winnerId);
+                        System.out.println("Payment Status: Paid");
+                        return new CustomResponse(winnerId , true);
+                    } else {
+                        System.out.println("Winner: " + winnerId);
+                        System.out.println("Payment Status: Not Paid");
+                        return new CustomResponse(winnerId , false);
+                    }
+                } else {
+                    System.out.println("Winner: " + winnerId);
+                    System.out.println("Payment Status: Not Paid");
+                    return new CustomResponse(winnerId , false);
+                }
+            } else {
+                System.out.println("No winner for the auction yet.");
+                return new CustomResponse("No winner found" , false);
+            }
+        } else {
+            System.out.println("Auction with ID " + auctionId + " not found.");
+            return new CustomResponse("Auction not found" , false);
+        }
 
 
+    }
 
 }

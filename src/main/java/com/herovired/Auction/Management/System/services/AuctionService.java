@@ -127,6 +127,18 @@ public class AuctionService {
                 registeredUserNames = userNames;
                 registeredNames = names;
 
+                WebSocketController1.sendBroadcastMessage("Auction " +auction.getTitle() + " is now active @@@@: " + auction.getAuctionId() + "##### registered by " + names + "actual: !!!![" + userNames  + "]!!!!");
+
+                scheduler.scheduleAtFixedRate(() -> {
+                    WebSocketController1.sendBroadcastMessage("Auction " +activeAuction.getTitle() + " is still active @@@@: " + activeAuction.getAuctionId() + "##### registered by " + registeredNames + "actual: !!!![" + registeredUserNames  + "]!!!!");
+
+                }, 0, 1, TimeUnit.MINUTES);
+
+                // Schedule a task to stop sending messages after 5 minutes
+                scheduler.schedule(() -> {
+                    scheduler.shutdown();
+                }, 5, TimeUnit.MINUTES);
+
 
                 if (announcedFlag < 2) {
                     for (String e : email) {

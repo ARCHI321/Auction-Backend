@@ -14,7 +14,6 @@ import java.time.LocalTime;
 @NoArgsConstructor
 @AllArgsConstructor
 public class FrontPageDto {
-    private String imageUrl;
     private String title;
     private String description;
     private Long startingPrice;

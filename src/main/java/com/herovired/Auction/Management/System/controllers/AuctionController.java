@@ -190,4 +190,9 @@ public class AuctionController {
         List<AuctionResponse> auctionsByWinner = auctionService.getAuctionByWinnerId(winnerId);
         return new ResponseEntity<>(auctionsByWinner, HttpStatus.OK);
     }
+
+//    @GetMapping("/winner-has-paid")
+//    public ResponseEntity<?> checkWinnerAndPaymentStatus(){
+//        auctionService.checkWinnerAndPaymentStatus();
+//    }
 }
